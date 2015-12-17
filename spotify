@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # Charlie Mitchell <charliesemailis@gmail.com> Added JSON Datastore for saving playlist URLS Charlie Mitchell <charliesemailis@gmail.com> Added db command to list items in data store Charlie 
 # Mitchell <charliesemailis@gmail.com> Added url command to play a track by its url Charlie Mitchell <charliesemailis@gmail.com> Added my command to play a track from the data store Charlie 
 # Mitchell <charliesemailis@gmail.com> Added save command to save a playlist to the data store Copyright (c) 2012--2015 Harish Narayanan <mail@harishnarayanan.org>
@@ -12,17 +13,22 @@
 # IN THE SOFTWARE. Create A JSON Datastore for future use
 if (ls /usr/local/ | grep spotifydb.json) then
     echo ""; else
-    printf '{}' > /usr/local/spotifydb.json; fi
+    printf '{}' > /usr/local/spotifydb.json; 
+fi
+
 # name, url
 appendDatabase () {
     ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file);hash['$1'] = \"$2\";File.write('/usr/local/spotifyDB.json', hash.to_json);"
 }
+
 getUrlForLocal () {
     ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file); puts hash['$1']" | grep spotify;
 }
+
 listDataBase () {
     ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file); hash.each {|key, value| puts \"#{key} => #{value}\"}";
 }
+
 showHelp () {
     echo "Usage:";
     echo;
@@ -73,12 +79,16 @@ showStatus () {
         echo -e $reset"Artist: $artist\nAlbum: $album\nTrack: $track";
     fi
 }
+
 if [ $# = 0 ]; then
     showHelp; else
     if [ $(osascript -e 'application "Spotify" is running') = "false" ]; then
         osascript -e 'tell application "Spotify" to activate'
         sleep 2
-    fi fi while [ $# -gt 0 ]; do
+    fi 
+fi 
+
+while [ $# -gt 0 ]; do
     arg=$1;
     case $arg in
         "play" )
