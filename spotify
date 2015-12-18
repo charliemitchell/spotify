@@ -5,6 +5,7 @@
 # Charlie Mitchell <charliesemailis@gmail.com> Added url command to play a track by its url
 # Charlie Mitchell <charliesemailis@gmail.com> Added my command to play a track from the data store
 # Charlie Mitchell <charliesemailis@gmail.com> Added save command to save a playlist to the data store
+# Charlie Mitchell <charliesemailis@gmail.com> Added rm command to delete a playlist/track from the data store
 
 # Copyright (c) 2012--2015 Harish Narayanan <mail@harishnarayanan.org>
 # Contains numerous helpful contributions from Jorge Colindres, Thomas Pritchard, iLan Epstein, Gabriele Bonetti and Sean Heller. Permission is hereby granted, free of charge, to any person 
@@ -26,6 +27,10 @@ appendDatabase () {
     ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file);hash['$1'] = \"$2\";File.write('/usr/local/spotifyDB.json', hash.to_json);"
 }
 
+rmDatabase () {
+    ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file); newhash = hash.tap { |hs| hs.delete('$1')}; File.write('/usr/local/spotifyDB.json', newhash.to_json);"
+}
+
 getUrlForLocal () {
     ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file);puts hash['$1']";
 }
@@ -41,32 +46,33 @@ showHelp () {
     echo;
     echo "Commands:";
     echo;
-    echo " play # Resume playback where Spotify last left off.";
-    echo " play [song name] # Finds a song by name and plays it.";
-    echo " play album [album name] # Finds an album by name and plays it.";
-    echo " play artist [artist name] # Finds an artist by name and plays it.";
-    echo " play list [playlist name] # Finds a playlist by name and plays it.";
+    echo " play                         # Resume playback where Spotify last left off.";
+    echo " play [song name]             # Finds a song by name and plays it.";
+    echo " play album [album name]      # Finds an album by name and plays it.";
+    echo " play artist [artist name]    # Finds an artist by name and plays it.";
+    echo " play list [playlist name]    # Finds a playlist by name and plays it.";
     echo;
-    echo " url [spotify URI] # Play a track or playlist by it's URL. Needed for private Playlistst etc...";
-    echo " save [name] [url] # Saves a playlist or track in your local database";
-    echo " db # List items saved in your local database";
-    echo " my [name] # Play a saved track/playlist from your local database";
+    echo " url [spotify URI]            # Play a track or playlist by it's URL. Needed for private Playlistst etc...";
+    echo " save [name] [url]            # Saves a playlist or track in your local database";
+    echo " rm [name]                    # Removes a playlist or track from your local database";
+    echo " db                           # List items saved in your local database";
+    echo " my [name]                    # Play a saved track/playlist from your local database";
     echo;
-    echo " next # Skips to the next song in a playlist.";
-    echo " prev # Returns to the previous song in a playlist.";
-    echo " pos [time] # Jump to a specific time (in seconds) in the current song.";
-    echo " pause # Pauses Spotify playback.";
-    echo " quit # Stops playback and quits Spotify.";
+    echo " next                         # Skips to the next song in a playlist.";
+    echo " prev                         # Returns to the previous song in a playlist.";
+    echo " pos [time]                   # Jump to a specific time (in seconds) in the current song.";
+    echo " pause                        # Pauses Spotify playback.";
+    echo " quit                         # Stops playback and quits Spotify.";
     echo;
-    echo " vol up # Increases the volume by 10%.";
-    echo " vol down # Decreases the volume by 10%.";
-    echo " vol [amount] # Sets the volume to an amount between 0 and 100.";
+    echo " vol up                       # Increases the volume by 10%.";
+    echo " vol down                     # Decreases the volume by 10%.";
+    echo " vol [amount]                 # Sets the volume to an amount between 0 and 100.";
     echo;
-    echo " status # Shows the play status, including the current song details.";
-    echo " share # Shows and copies the current song URL to the clipboard for sharing."
+    echo " status                       # Shows the play status, including the current song details.";
+    echo " share                        # Shows and copies the current song URL to the clipboard for sharing."
     echo;
-    echo " toggle shuffle # Toggle shuffle playback mode.";
-    echo " toggle repeat # Toggle repeat playback mode.";
+    echo " toggle shuffle               # Toggle shuffle playback mode.";
+    echo " toggle repeat                # Toggle repeat playback mode.";
 }
 cecho(){
     bold=$(tput bold);
@@ -258,6 +264,9 @@ while [ $# -gt 0 ]; do
              break;;
         "save" )
              appendDatabase $2 $3;
+             break;;
+        "rm" )
+             rmDatabase $2
              break;;
         "my" )
              ruby -e "require 'json';file=File.read('/usr/local/spotifyDB.json');hash=JSON.parse(file);puts hash['$2']" | pbcopy;
